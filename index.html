@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MireneTech - Inteligência Artificial para Seu Negócio</title>
+    <meta name="description" content="Plataforma de IA avançada para automatizar processos e impulsionar seu negócio. Planos a partir de R$ 50/mês.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        * { transition: background-color 0.3s ease; }
+        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .animate-gradient { background-size: 200% 200%; animation: gradient 3s ease infinite; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+const { useState } = React;
+const { MessageCircle, Zap, Shield, Sparkles, Send, Check, Crown, Rocket, Brain, TrendingUp, Users, Camera, X, Menu, Moon, Sun, ChevronDown, Lock, Mail, Eye, EyeOff, LogOut } = lucide;
+
+function MireneTechPlatform() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  const [billingPeriod, setBillingPeriod] = useState('monthly');
+  const [userPlan, setUserPlan] = useState('free');
+  const [faqOpen, setFaqOpen] = useState({});
+
+  const bg = darkMode ? 'bg-gray-900' : 'bg-white';
+  const text = darkMode ? 'text-gray-100' : 'text-gray-900';
+  const textSec = darkMode ? 'text-gray-400' : 'text-gray-600';
+  const card = darkMode ? 'bg-gray-800' : 'bg-gray-50';
+  const border = darkMode ? 'border-gray-700' : 'border-gray-200';
+
+  const plans = {
+    monthly: [
+      { name: 'Básico', price: 50, period: '/mês', features: ['100 consultas por mês', 'Análise de texto avançada', 'Suporte via email', 'Histórico de 30 dias', 'Exportar em PDF'] },
+      { name: 'Pro', price: 100, period: '/mês', popular: true, features: ['Consultas ilimitadas', 'Análise de texto + imagem', 'Suporte prioritário 24/7', 'Histórico ilimitado', 'API de integração', 'Relatórios avançados', 'Treinamento personalizado'] },
+      { name: 'Empresarial', price: 150, period: '/mês', features: ['Tudo do Pro +', 'Múltiplos usuários (até 10)', 'IA customizada com seus dados', 'White label', 'Gerente de conta dedicado', 'SLA 99.9%', 'Integração completa', 'Treinamento da equipe'] }
+    ],
+    annual: [
+      { name: 'Básico', price: 540, period: '/ano', discount: '10% OFF', features: ['100 consultas por mês', 'Análise de texto avançada', 'Suporte via email', 'Histórico de 30 dias', 'Exportar em PDF'] },
+      { name: 'Pro', price: 1080, period: '/ano', popular: true, discount: '10% OFF', features: ['Consultas ilimitadas', 'Análise de texto + imagem', 'Suporte prioritário 24/7', 'Histórico ilimitado', 'API de integração', 'Relatórios avançados', 'Treinamento personalizado'] },
+      { name: 'Empresarial', price: 1620, period: '/ano', discount: '10% OFF', features: ['Tudo do Pro +', 'Múltiplos usuários (até 10)', 'IA customizada com seus dados', 'White label', 'Gerente de conta dedicado', 'SLA 99.9%', 'Integração completa', 'Treinamento da equipe'] }
+    ]
+  };
+
+  const faqs = [
+    { q: 'Como funciona a inteligência artificial do MireneTech?', a: 'Nossa IA utiliza modelos avançados de processamento de linguagem natural e visão computacional. Ela analisa seus dados, entende o contexto e gera respostas precisas e personalizadas para seu negócio.' },
+    { q: 'Posso cancelar minha assinatura a qualquer momento?', a: 'Sim! Você pode cancelar quando quiser, sem multas. Seu acesso continuará até o fim do período pago.' },
+    { q: 'Meus dados estão seguros?', a: 'Absolutamente. Usamos criptografia de ponta a ponta, somos compatíveis com LGPD e nunca compartilhamos seus dados com terceiros.' },
+    { q: 'Qual a diferença entre os planos?', a: 'O Básico é ideal para começar, o Pro oferece recursos ilimitados e avançados, e o Empresarial inclui customização completa e suporte dedicado para equipes.' },
+    { q: 'Posso fazer upgrade do meu plano?', a: 'Sim, você pode fazer upgrade a qualquer momento e pagar apenas a diferença proporcional.' }
+  ];
+
+  const handleLogin = () => { if (email && password) { setIsLoggedIn(true); setShowLogin(false); setUserPlan('basic'); alert('Login realizado com sucesso!'); } };
+  const handleLogout = () => { setIsLoggedIn(false); setUserPlan('free'); setMessages([]); };
+  
+  const handleSendMessage = async () => {
+    if (!input.trim()) return;
+    if (!isLoggedIn) { setShowLogin(true); return; }
+    const userMessage = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+    setTimeout(() => {
+      const responses = [
+        'Com base na análise de **dados de mercado**, recomendo focar em **três estratégias principais**: otimização de SEO para aumentar tráfego orgânico em 40%, implementação de remarketing para recuperar 25% de vendas perdidas, e automação de email marketing para nutrir leads. O investimento inicial estimado é de R$ 5.000 com ROI esperado de 280% em 6 meses.',
+        'Analisando seu **funil de vendas**, identifiquei que a maior perda acontece na etapa de consideração (58% de abandono). Sugiro implementar: chatbot inteligente para qualificação de leads, sequência de emails educativos, e ofertas personalizadas baseadas no comportamento do usuário. Isso pode aumentar sua taxa de conversão em até **35%**.',
+        'Para **otimizar suas operações**, recomendo automatizar processos repetitivos que consomem 15h semanais. Principais áreas: atendimento ao cliente (chatbot), geração de relatórios (BI automatizado), e gestão de inventário (sistema preditivo). Economia estimada: **R$ 8.000 mes** em custos operacionais.'
+      ];
+      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+      setMessages(prev => [...prev, { role: 'assistant', content: randomResponse }]);
+      setLoading(false);
+    }, 1500);
+  };
+
+  const Logo = () => (
+    <div className="relative">
+      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl blur opacity-50"></div>
+      <div className="relative bg-gradient-to-r from-cyan-500 to-blue-600 p-2 rounded-xl">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" fill="white"/>
+          <circle cx="6" cy="6" r="2" fill="white" opacity="0.8"/>
+          <circle cx="18" cy="6" r="2" fill="white" opacity="0.8"/>
+          <circle cx="6" cy="18" r="2" fill="white" opacity="0.8"/>
+          <circle cx="18" cy="18" r="2" fill="white" opacity="0.8"/>
+          <line x1="12" y1="12" x2="6" y2="6" stroke="white" strokeWidth="1.5" opacity="0.6"/>
+          <line x1="12" y1="12" x2="18" y2="6" stroke="white" strokeWidth="1.5" opacity="0.6"/>
+          <line x1="12" y1="12" x2="6" y2="18" stroke="white" strokeWidth="1.5" opacity="0.6"/>
+          <line x1="12" y1="12" x2="18" y2="18" stroke="white" strokeWidth="1.5" opacity="0.6"/>
+        </svg>
+      </div>
+      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+    </div>
+  );
+
+  return (
+    <div className={`min-h-screen ${bg}`}>
+      <nav className={`${card} ${border} border-b sticky top-0 z-50 backdrop-blur-lg bg-opacity-90`}>
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setCurrentPage('home')}>
+            <Logo />
+            <span className={`text-2xl font-bold ${text}`}>MireneTech</span>
+          </div>
+          <div className="hidden md:flex items-center gap-8">
+            <button onClick={() => setCurrentPage('home')} className={`${textSec} hover:text-cyan-500 font-medium`}>Início</button>
+            <button onClick={() => setCurrentPage('pricing')} className={`${textSec} hover:text-cyan-500 font-medium`}>Planos</button>
+            <button onClick={() => setCurrentPage('about')} className={`${textSec} hover:text-cyan-500 font-medium`}>Sobre</button>
+            <button onClick={() => setCurrentPage('faq')} className={`${textSec} hover:text-cyan-500 font-medium`}>FAQ</button>
+            <button onClick={() => setDarkMode(!darkMode)} className={textSec}>{darkMode ? <Sun size={20} /> : <Moon size={20} />}</button>
+            {isLoggedIn ? (
+              <div className="flex items-center gap-3">
+                <span className={`${textSec} text-sm`}>{email}</span>
+                <button onClick={handleLogout} className="bg-red-500 text-white px-4 py-2 rounded-lg">Sair</button>
+              </div>
+            ) : (
+              <button onClick={() => setShowLogin(true)} className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-2 rounded-lg font-semibold">Entrar</button>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {showLogin && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`${card} rounded-2xl p-8 max-w-md w-full ${border} border`}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className={`text-2xl font-bold ${text}`}>Entrar</h3>
+              <button onClick={() => setShowLogin(false)}><X size={24} /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className={`block ${textSec} mb-2`}>Email</label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="seu@email.com" className={`w-full ${card} ${text} px-4 py-3 rounded-xl border ${border}`} />
+              </div>
+              <div>
+                <label className={`block ${textSec} mb-2`}>Senha</label>
+                <input type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" className={`w-full ${card} ${text} px-4 py-3 rounded-xl border ${border}`} />
+              </div>
+              <button onClick={handleLogin} className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-xl font-bold">Entrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <main>
+        {currentPage === 'home' && (
+          <div className="container mx-auto px-4 py-20 text-center">
+            <h1 className={`text-5xl md:text-7xl font-black ${text} mb-6`}>
+              Transforme Seu Negócio
+              <span className="block mt-2 bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">Com Inteligência Artificial</span>
+            </h1>
+            <p className={`text-xl ${textSec} mb-12 max-w-3xl mx-auto`}>Automatize processos, analise dados e tome decisões estratégicas. Economize até 20 horas semanais.</p>
+            <button onClick={() => isLoggedIn ? setCurrentPage('chat') : setShowLogin(true)} className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-bold">Começar Agora</button>
+            <div className="grid md:grid-cols-4 gap-6 max-w-5xl mx-auto mt-20">
+              <div className={`${card} p-6 rounded-2xl ${border} border`}><TrendingUp className="text-cyan-500 mx-auto mb-3" size={40} /><div className="text-4xl font-black text-cyan-500">20h</div><div className={textSec}>Economizadas/semana</div></div>
+              <div className={`${card} p-6 rounded-2xl ${border} border`}><Users className="text-blue-500 mx-auto mb-3" size={40} /><div className="text-4xl font-black text-blue-500">98%</div><div className={textSec}>Satisfação</div></div>
+              <div className={`${card} p-6 rounded-2xl ${border} border`}><Rocket className="text-purple-500 mx-auto mb-3" size={40} /><div className="text-4xl font-black text-purple-500">5k+</div><div className={textSec}>Empresas</div></div>
+              <div className={`${card} p-6 rounded-2xl ${border} border`}><Zap className="text-yellow-500 mx-auto mb-3" size={40} /><div className="text-4xl font-black text-yellow-500">380%</div><div className={textSec}>ROI Médio</div></div>
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'pricing' && (
+          <div className="container mx-auto px-4 py-20">
+            <h2 className={`text-5xl font-black ${text} text-center mb-8`}>Planos e Preços</h2>
+            <div className={`inline-flex ${card} p-2 rounded-xl mx-auto block w-fit mb-12`}>
+              <button onClick={() => setBillingPeriod('monthly')} className={`px-6 py-3 rounded-lg font-semibold ${billingPeriod === 'monthly' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white' : textSec}`}>Mensal</button>
+              <button onClick={() => setBillingPeriod('annual')} className={`px-6 py-3 rounded-lg font-semibold ${billingPeriod === 'annual' ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white' : textSec}`}>Anual <span className="bg-green-500 text-white text-xs px-2 py-1 rounded-full ml-2">-10%</span></button>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+              {plans[billingPeriod].map((plan, i) => (
+                <div key={i} className={`${card} rounded-3xl p-8 border-2 ${plan.popular ? 'border-cyan-500' : border}`}>
+                  {plan.popular && <div className="text-center mb-4"><span className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-4 py-1 rounded-full text-sm font-bold">MAIS POPULAR</span></div>}
+                  <h3 className={`text-3xl font-black ${text} text-center mb-4`}>{plan.name}</h3>
+                  {plan.discount && <span className="bg-green-500 text-white text-sm px-3 py-1 rounded-full block text-center mb-3">{plan.discount}</span>}
+                  <div className="text-center mb-8"><span className="text-5xl font-black text-cyan-500">R$ {plan.price}</span><span className={textSec}>{plan.period}</span></div>
+                  <ul className="space-y-4 mb-8">{plan.features.map((f, j) => <li key={j} className={`flex gap-3 ${textSec}`}><Check size={20} className="text-cyan-500 flex-shrink-0 mt-0.5" /><span>{f}</span></li>)}</ul>
+                  <button onClick={() => isLoggedIn ? alert('Plano selecionado!') : setShowLogin(true)} className={`w-full py-4 rounded-xl font-bold ${plan.popular ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white' : `${card} ${text} border ${border}`}`}>Assinar Agora</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'about' && (
+          <div className="container mx-auto px-4 py-20 max-w-4xl">
+            <h2 className={`text-5xl font-black ${text} mb-8`}>Sobre o MireneTech</h2>
+            <div className={`${card} p-8 rounded-2xl ${border} border`}>
+              <h3 className={`text-2xl font-bold ${text} mb-4`}>Nossa Missão</h3>
+              <p className={`${textSec} text-lg mb-6`}>Democratizar o acesso à inteligência artificial para empresas de todos os tamanhos.</p>
+              <h3 className={`text-2xl font-bold ${text} mb-4`}>Nossa Tecnologia</h3>
+              <p className={`${textSec} text-lg mb-6`}>Utilizamos os mais avançados modelos de IA do mercado, combinando processamento de linguagem natural e visão computacional.</p>
+              <h3 className={`text-2xl font-bold ${text} mb-4`}>Segurança</h3>
+              <p className={`${textSec} text-lg`}>Criptografia de ponta a ponta, auditorias regulares e 100% compatível com LGPD.</p>
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'faq' && (
+          <div className="container mx-auto px-4 py-20 max-w-4xl">
+            <h2 className={`text-5xl font-black ${text} mb-12 text-center`}>Perguntas Frequentes</h2>
+            <div className="space-y-4">
+              {faqs.map((faq, i) => (
+                <div key={i} className={`${card} rounded-xl ${border} border overflow-hidden`}>
+                  <button onClick={() => setFaqOpen({...faqOpen, [i]: !faqOpen[i]})} className={`w-full p-6 text-left flex justify-between ${text}`}>
+                    <span className="font-bold">{faq.q}</span>
+                    <ChevronDown className={`transform ${faqOpen[i] ? 'rotate-180' : ''}`} />
+                  </button>
+                  {faqOpen[i] && <div className={`px-6 pb-6 ${textSec}`}>{faq.a}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {currentPage === 'chat' && (
+          <div className="container mx-auto px-4 py-8 max-w-6xl">
+            <div className={`${card} rounded-3xl ${border} border overflow-hidden`}>
+              <div className="bg-gradient-to-r from-cyan-600 to-blue-600 p-5"><h3 className="text-white font-semibold">MireneTech AI Assistant</h3></div>
+              <div className="h-96 overflow-y-auto p-8 space-y-5">
+                {messages.length === 0 && (
+                  <div className="text-center text-gray-500 mt-20">
+                    <Brain size={64} className="mx-auto mb-6 text-cyan-400/30" />
+                    <p className="mb-4">Como posso ajudar?</p>
+                    <button onClick={() => setInput('Analise meu funil de vendas')} className={`${card} px-6 py-3 rounded-xl ${border} border block mx-auto mb-2`}>💰 Otimizar funil</button>
+                    <button onClick={() => setInput('Crie estratégia de marketing')} className={`${card} px-6 py-3 rounded-xl ${border} border block mx-auto`}>📱 Estratégia marketing</button>
+                  </div>
+                )}
+                {messages.map((msg, i) => (
+                  <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {msg.role === 'assistant' ? (
+                      <div className={`max-w-2xl ${card} ${border} border rounded-2xl p-5`} dangerouslySetInnerHTML={{__html: msg.content.replace(/\*\*(.*?)\*\*/g, '<strong class="text-cyan-400 font-bold">$1</strong>').replace(/\n/g, '<br/>')}} />
+                    ) : (
+                      <div className="max-w-lg bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-2xl p-5">{msg.content}</div>
+                    )}
+                  </div>
+                ))}
+                {loading && <div className={`${card} px-5 py-4 rounded-2xl inline-block`}><div className="flex gap-1.5"><div className="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-bounce"></div><div className="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce" style={{animationDelay:'0.1s'}}></div><div className="w-2.5 h-2.5 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay:'0.2s'}}></div></div></div>}
+              </div>
+              <div className={`p-6 ${border} border-t`}>
+                <div className="flex gap-3">
+                  <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()} placeholder="Digite sua pergunta..." className={`flex-1 ${card} ${text} px-5 py-4 rounded-xl ${border} border focus:ring-2 focus:ring-cyan-500 outline-none`} />
+                  <button onClick={handleSendMessage} disabled={loading || !input.trim()} className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-4 rounded-xl disabled:opacity-50"><Send size={20} /></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      <footer className={`${card} ${border} border-t py-12 mt-20`}>
+        <div className="container mx-auto px-4 grid md:grid-cols-4 gap-8">
+          <div><div className="flex items-center gap-2 mb-4"><Logo /><span className={`text-xl font-bold ${text}`}>MireneTech</span></div><p className={textSec}>IA para transformar seu negócio</p></div>
+          <div><h4 className={`font-bold ${text} mb-4`}>Produto</h4><ul className={`space-y-2 ${textSec}`}><li className="cursor-pointer hover:text-cyan-500" onClick={() => setCurrentPage('pricing')}>Planos</li><li className="cursor-pointer hover:text-cyan-500" onClick={() => setCurrentPage('about')}>Sobre</li><li className="cursor-pointer hover:text-cyan-500" onClick={() => setCurrentPage('faq')}>FAQ</li></ul></div>
+          <div><h4 className={`font-bold ${text} mb-4`}>Legal</h4><ul className={`space-y-2 ${textSec}`}><li>Termos de Uso</li><li>Privacidade</li></ul></div>
+          <div><h4 className={`font-bold ${text} mb-4`}>Contato</h4><ul className={`space-y-2 ${textSec}`}><li>contato@mirenetech.com</li><li>+55 (14) 98149-7927</li></ul></div>
+        </div>
+        <div className={`${border} border-t mt-8 pt-8 text-center ${textSec}`}><p>© 2026 MireneTech - Todos os direitos reservados</p></div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.render(<MireneTechPlatform />, document.getElementById('root'));
+    </script>
+    <script>setTimeout(() => { if (window.lucide) lucide.createIcons(); }, 100);</script>
+</body>
+</html>
